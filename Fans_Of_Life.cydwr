@@ -325,12 +325,13 @@
       <Data key="c64dc4e4-8afd-4421-8deb-c78f703f761c" value="PWM" />
       <Data key="c93e3d67-677c-4e45-ab6b-e6aca287cb86" value="Pin_9" />
       <Data key="c8980ecf-0c5b-4de6-ba3b-14ea8a775121" value="Tach_14" />
+      <Data key="cc3bcd7e-5dc0-48ea-9bf6-6aa082be1ada" value="Vout_1" />
       <Data key="d55bab30-2946-436a-99eb-234d4999b550" value="Tach_30" />
       <Data key="da19b7ab-e38b-41ce-83c9-dbda27803978" value="Tach_17" />
       <Data key="df7ead82-d660-4fb9-9380-6dc0ffcf7033" value="Tach_24" />
       <Data key="e8b00bfb-9955-461a-92ba-6716f72308d0" value="Pin_13" />
       <Data key="e015bd61-ad8e-4438-a475-a545a21306a8" value="Tach_6" />
-      <Data key="e851a3b9-efb8-48be-bbb8-b303b216c393" value="DEBUG_LED" />
+      <Data key="e851a3b9-efb8-48be-bbb8-b303b216c393" value="Pin_Fan_Speed" />
       <Data key="ed092b9b-d398-4703-be89-cebf998501f6" value="TX" />
       <Data key="ed223bbc-44a2-4730-8b96-b1a08c7c1be1" value="Tach_28" />
       <Data key="f2ddefe6-12c9-47c2-be12-872c60696d05" value="Tach_22" />
@@ -3632,6 +3633,11 @@
         <Data key="Port Format" value="3,0" />
       </Group>
     </Group>
+    <Group key="cc3bcd7e-5dc0-48ea-9bf6-6aa082be1ada">
+      <Group key="0">
+        <Data key="Port Format" value="15,2" />
+      </Group>
+    </Group>
     <Group key="df7ead82-d660-4fb9-9380-6dc0ffcf7033">
       <Group key="0">
         <Data key="Port Format" value="1,3" />
@@ -3649,7 +3655,7 @@
     </Group>
     <Group key="e851a3b9-efb8-48be-bbb8-b303b216c393">
       <Group key="0">
-        <Data key="Port Format" value="2,1" />
+        <Data key="Port Format" value="15,2" />
       </Group>
     </Group>
     <Group key="ed092b9b-d398-4703-be89-cebf998501f6">

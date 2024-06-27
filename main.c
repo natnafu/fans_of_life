@@ -18,8 +18,8 @@
 #include "rs485.h"
 #include "stopwatch.h"
 
-//#define IS_SLAVE
-#define IS_MASTER
+#define IS_SLAVE
+//define IS_MASTER
 
 // Config error checking
 #if (defined IS_SLAVE && defined IS_MASTER)
@@ -45,6 +45,9 @@ int main(void) {
 
 
 #if (defined IS_SLAVE)
+    PWM_FAN_SPEED_Start();
+    PWM_FAN_SPEED_WriteCompare(10);
+    
     uint8_t rx_buff_size = 0;   // Stores UART RX buffer size
     uint32_t ctrl_state = 0;    // commanded state from master
     uint32_t old_state  = 0;    // previous state
