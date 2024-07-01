@@ -18,8 +18,8 @@
 #include "rs485.h"
 #include "stopwatch.h"
 
-//#define IS_SLAVE
-#define IS_MASTER
+#define IS_SLAVE
+//#define IS_MASTER
 
 // Config error checking
 #if (defined IS_SLAVE && defined IS_MASTER)
