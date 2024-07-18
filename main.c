@@ -46,7 +46,7 @@ int main(void) {
 
 #if (defined IS_SLAVE)
     PWM_FAN_SPEED_Start();
-    PWM_FAN_SPEED_WriteCompare(10);
+    PWM_FAN_SPEED_WriteCompare(90);
     
     uint8_t rx_buff_size = 0;   // Stores UART RX buffer size
     uint32_t ctrl_state = 0;    // commanded state from master
