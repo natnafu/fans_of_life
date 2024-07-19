@@ -63,9 +63,6 @@ int main(void) {
   uint32_t ctrl_state = 0; // commanded state from master
   uint32_t old_state = 0; // previous state
   uint32_t curr_state = 0; // current state
-  uint32_t config = CONFIG_DEFAULT;
-  uint32_t cell_pulse_time_ms = 0;
-  uint32_t cell_pwm_time_ms = 0;
   uint32_t timer_comm = 0; // RS485 communication timer
   uint32_t validation[FANS_PER_CELL] = {0}; // holds the validation times for each fan
 
@@ -83,7 +80,7 @@ int main(void) {
   for (;;)
   {
     if (is_master) {
-      // Play Conway's Game of Life
+      // Play Conway's Game of Life on all cells ----------------------------------------
 
       // Save last state
       memcpy(conway_last_frame, conway_curr_frame, sizeof(conway_curr_frame));
@@ -102,60 +99,9 @@ int main(void) {
         master_write_grid(conway_curr_frame);
         timer_change = stopwatch_start();
       }
-      /*
-              // Tests turning all fans on and off
-              while(1) {
-                  master_write_all(0);
-                  CyDelay(5000);
-                  master_write_all(UINT32_MAX);
-                  CyDelay(5000);
-              }
-
-              // Tests conway with no human input
-              memcpy(conway_curr_frame, conway_dead, sizeof(conway_curr_frame));
-              master_write_grid(conway_curr_frame);
-              CyDelay(6000);
-              while(1) {
-                  conway_update_frame();
-                  master_write_grid(conway_curr_frame);
-                  CyDelay(6000);
-              }
-
-              // Tests writing cells
-              uint32_t state_test;
-              for (uint8_t cell = 0; cell < NUM_CELLS; cell++) {
-              //for (uint8_t cell = 1; cell < 2; cell++) {
-                  state_test = 0;
-                  for (uint8_t fan = 0; fan < FANS_PER_CELL; fan++) {
-                      state_test |= (1 << fan);
-                      master_write_cell(cell, state_test);
-                      CyDelay(500);   // min slave response time is ~200ms because of blocking fan_get_state()
-                      // NOTE: this delay only works for setting. To be robust to all commands, this delay should be
-                      // greater than or equal to the fan validation timeout. Possibly could have the slave respond when
-                      // either the state has been set or its validation has timed out. All robust solutions result in
-                      // the grid getting updated every ~5s (spindown time).
-                  }
-              }
-      */
 
     } else {
-      // Handle pulsing. Turns all fans on for cell_pulse_time_ms and then restores state.
-      // This is attempting to quiet the whining sound of the fans when off and trying to spin.
-      // Depending on length, may create an audible clicking sound or have no effect.
-      // NOTE: this doesn't really work :(
-      if (cell_pulse_time_ms) {
-        fan_set_state(UINT32_MAX, 0);
-        CyDelay(cell_pulse_time_ms);
-        fan_set_state(curr_state, 0);
-      }
-
-      // Handle PWMing. If enabled, turn on fan for cell_pwm_time_ms and then turn off.
-      // This lowers the fan speed for less force on fingers. Trade off is a small audible clicking sound.
-      if (cell_pwm_time_ms) {
-        fan_set_state(curr_state, 0);
-        CyDelay(cell_pwm_time_ms);
-        fan_set_state(0, 0);
-      }
+      // Handle fan control and responding to master commands ---------------------------
 
       // Handle updating fan state
       old_state = curr_state; // Save state
@@ -200,17 +146,12 @@ int main(void) {
             ((uint32_t) UART_ReadRxData() << 0);
           rs485_tx(MASTER_ADDRESS, UART_WRITE, curr_state); // send back confirmation that cmd was received
           curr_state = fan_set_ctrl(curr_state, ctrl_state, validation);
-        } else if (rx_cmd == UART_CONFIG) {
-          uint8_t config_option = UART_ReadRxData(); // get type of config
-          if (config_option == CONFIG_PULSE_TIME) {
-            cell_pulse_time_ms = UART_ReadRxData();
-          } else if (config_option == CONFIG_PWM_FANS) {
-            cell_pwm_time_ms = UART_ReadRxData();
-          }
         }
+
         // Clear RX buffer after processing data
         UART_ClearRxBuffer();
         timer_comm = 0;
+
       } else if (rx_buff_size != 0) {
         // If buffer isn't full or empty, clear the buffer if a timeout occurs
         if (timer_comm == 0) {
@@ -227,3 +168,39 @@ int main(void) {
     }
   }
 }
+
+/*
+  // Tests turning all fans on and off
+  while(1) {
+      master_write_all(0);
+      CyDelay(5000);
+      master_write_all(UINT32_MAX);
+      CyDelay(5000);
+  }
+
+  // Tests conway with no human input
+  memcpy(conway_curr_frame, conway_dead, sizeof(conway_curr_frame));
+  master_write_grid(conway_curr_frame);
+  CyDelay(6000);
+  while(1) {
+      conway_update_frame();
+      master_write_grid(conway_curr_frame);
+      CyDelay(6000);
+  }
+
+  // Tests writing cells
+  uint32_t state_test;
+  for (uint8_t cell = 0; cell < NUM_CELLS; cell++) {
+  //for (uint8_t cell = 1; cell < 2; cell++) {
+      state_test = 0;
+      for (uint8_t fan = 0; fan < FANS_PER_CELL; fan++) {
+          state_test |= (1 << fan);
+          master_write_cell(cell, state_test);
+          CyDelay(500);   // min slave response time is ~200ms because of blocking fan_get_state()
+          // NOTE: this delay only works for setting. To be robust to all commands, this delay should be
+          // greater than or equal to the fan validation timeout. Possibly could have the slave respond when
+          // either the state has been set or its validation has timed out. All robust solutions result in
+          // the grid getting updated every ~5s (spindown time).
+      }
+  }
+      */
