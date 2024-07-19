@@ -9,6 +9,7 @@
  *
  * ========================================
 */
+#include <stdlib.h>
 
 #include "conway.h"
 #include "fan.h"
@@ -19,15 +20,13 @@
 #include "stopwatch.h"
 
 #define IS_SLAVE
-//define IS_MASTER
+//#define IS_MASTER
 
 // Config error checking
 #if (defined IS_SLAVE && defined IS_MASTER)
 #error  Can not define both master and slave   
 #elif (defined IS_MASTER && UART_RX_HW_ADDRESS1 != 8)
 #error  incorrect master UART hardware address
-#elif (defined IS_SLAVE && UART_RX_HW_ADDRESS1 >= 8)
-#error  incorrect slave UART hardware address
 #endif
 
 // Cell configuration bits
@@ -40,9 +39,21 @@ int main(void) {
 
     CyGlobalIntEnable;          // Enable global interrupts.
     Timer_Start();              // Used for stopwatch timers
-    UART_Start();               // Used for RS485 comms
+
+    // Used for RS485 comms
+    UART_Start();
+    // Get hardware address
+    uint8_t uart_address = 0;
+    if (Pin_A0_Read()) uart_address |= 0b00000001;
+    if (Pin_A1_Read()) uart_address |= 0b00000010;
+    if (Pin_A2_Read()) uart_address |= 0b00000100;
+    UART_SetRxAddress1(uart_address);
+    UART_SetRxAddress2(uart_address);
     UART_ClearRxBuffer();
 
+    // Used for debug messages
+    UART_DEBUG_Start();
+    UART_DEBUG_PutString("\nstart\n");
 
 #if (defined IS_SLAVE)
     PWM_FAN_SPEED_Start();
@@ -124,6 +135,7 @@ int main(void) {
         // Check for commands
         rx_buff_size = UART_GetRxBufferSize();
         if (rx_buff_size == UART_RX_BUFFER_SIZE) {
+            UART_DEBUG_PutString("\data received\n");
             uint8 rx_cmd = UART_ReadRxData();   // first byte is READ/WRITE
             if (rx_cmd == UART_READ) {
                 rs485_tx(MASTER_ADDRESS, UART_READ, curr_state);    // send back current state
