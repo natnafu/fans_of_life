@@ -15,7 +15,7 @@
 #include "stopwatch.h"
 
 // time to wait for human input to finish
-#define CHANGE_TIMER_MS 6000
+#define CHANGE_TIMER_MS 2000
 
 // Cell configuration bits
 #define CONFIG_PULSE_TIME (1 << 0) // enables/disables pulsing all fans on before a read operation
