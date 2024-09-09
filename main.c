@@ -14,8 +14,8 @@
 #include "rs485.h"
 #include "stopwatch.h"
 
-// time to wait for human input to finish
-#define CHANGE_TIMER_MS 2000
+#define UPDATE_TIMER_MS     2000  // time between frame updates (w/o human input)
+#define INPUT_THRESHOLD     1     // number of human inputs before resetting the frame update timer
 
 // Cell configuration bits
 #define CONFIG_PULSE_TIME (1 << 0) // enables/disables pulsing all fans on before a read operation
@@ -88,13 +88,13 @@ int main(void) {
       // Read grid
       master_read_grid(conway_curr_frame);
 
-      // Check if it's change
-      if (conway_has_changed() >= 2) {
+      // If human input detected, restart timer
+      if (conway_has_changed() >= INPUT_THRESHOLD) {
         timer_change = stopwatch_start();
       }
 
       // Update only if timer has expired
-      if (stopwatch_elapsed_ms(timer_change) >= CHANGE_TIMER_MS) {
+      if (stopwatch_elapsed_ms(timer_change) >= UPDATE_TIMER_MS) {
         conway_update_frame();
         master_write_grid(conway_curr_frame);
         timer_change = stopwatch_start();
